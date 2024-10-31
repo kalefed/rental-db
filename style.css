@@ -1,0 +1,55 @@
+HTML,
+body {
+    margin: 0px;
+    padding: 0px;
+    border: 0px;
+}
+
+h1,
+p {
+    margin: 0;
+}
+
+body {
+    font-family: "Wix Madefor Text", sans-serif;
+}
+
+button {
+    display: inline-block;
+    font-family: "Wix Madefor Text", sans-serif;
+    outline: 0;
+    border: none;
+    cursor: pointer;
+    height: 32px;
+    padding: 0px 16px;
+    border-radius: 50px;
+    background-color: #2222220d;
+    color: #222;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+button:hover {
+    background-color: #2222221a;
+}
+
+.home-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 70vh;
+}
+
+.home-description {
+    text-align: center;
+    padding-top: 10px;
+}
+
+.nav-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 40px;
+}

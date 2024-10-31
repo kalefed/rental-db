@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link href="preferences.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Wix+Madefor+Text:ital,wght@0,400..800;1,400..800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="pref-container">
+    <a href="rental.html"><button type="button" class="home-button">Go back home</button></a>
+      <div class="heading">
+        <h1>Update your Rental Group Preferences</h1>
+      </div>
+      <p class="description">
+        To update your rental group preferences, please provide your rental
+        group code
+      </p>
+      <form action="processPref.php" method="post">
+        <label for="username">Rental Group Code:</label>
+        <input type="text" id="code" name="code" required />
+        <input type="submit" class="submit-button"/>
+      </form>
+    </div>
+  </body>
+</html>

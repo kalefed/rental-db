@@ -1,0 +1,247 @@
+drop database if exists rentalDB;
+create database rentalDB;
+
+-- Person superclass
+CREATE TABLE Person(
+    FirstName VARCHAR(60) NOT NULL,
+    LastName VARCHAR(60) NOT NULL,
+    PhoneNum CHAR(10) NOT NULL,
+    Id INT NOT NULL,
+    PRIMARY KEY (Id)
+);
+
+-- Manager entity
+CREATE TABLE Manager(
+    PersonId INT NOT NULL,
+    PRIMARY KEY (PersonId), -- method one: primary key of subclass is foreign key referencing the superclass entity
+    FOREIGN KEY (PersonId) REFERENCES Person(Id)
+);
+
+-- Property superclass
+CREATE TABLE Property(
+    Id INT NOT NULL,
+    Cost DECIMAL(10,2) NOT NULL,
+    Accessibility VARCHAR(3), -- value of 3 since the field will be Yes or No
+    Street VARCHAR(50),
+    City VARCHAR(50),
+    PostalCode CHAR(6), -- ontario postal code is of length 6 with No spaces/dashes
+    Province VARCHAR(22), -- longest province name (Newfoundland and labrador)
+    AptNum VARCHAR(10), -- use varchar to represent values such as apt num 2a
+    Parking VARCHAR(3), -- value of 3 since the field will be Yes or No
+    DateListed DATE,
+    BathroomNum INT,
+    BedroomNum INT,
+    ManagerId INT,
+    ManagedSince DATE, -- add in attribute from the 'manages' relationship
+    FOREIGN KEY (ManagerId) REFERENCES Manager(PersonId), -- 1:N relationship between manager and property
+    PRIMARY KEY (Id)
+);
+
+-- Rental Group entity 
+-- properties such as num bedrooms, bathrooms, parking, laundry, accessibility and max cost is optional (can be null)
+CREATE TABLE RentalGroup(
+    Accessibility VARCHAR(3), -- value of 3 since the field will be Yes or No
+    MaxCost DECIMAL(10,2),
+    BathroomNum INT,
+    Parking VARCHAR(3), -- value of 3 since the field will be Yes or No
+    AccomodationType VARCHAR(9), -- will have at most a value of 9
+    BedroomNum INT,
+    Code INT NOT NULL,
+    PropertyId INT, -- can tecnically be null if a rental group hasn't rented yet
+    -- attributes that are on the leases relationship 
+    -- we state these once a lease is signed so they could be null values
+    MonthlyCost DECIMAL(10,2), 
+    SignDate DATE, 
+    EndDate DATE,
+    PRIMARY KEY (Code),
+    FOREIGN KEY (PropertyId) REFERENCES Property(Id)
+);
+
+-- subclasses (owner, renter, manager)
+-- Renter entity
+CREATE TABLE Renter(
+    StudentId INT NOT NULL,
+    GradYear CHAR(4) NOT NULL, -- a year will only have 4 digits
+    Program VARCHAR(60) NOT NULL,
+    PersonId INT NOT NULL,
+    RentalGroupId INT NOT NULL, -- assume renter must be in rental group
+    PRIMARY KEY (PersonId), -- method one: primary key of subclass is foreign key referencing the superclass entity
+    FOREIGN KEY (PersonId) REFERENCES Person(Id),
+    FOREIGN KEY (RentalGroupId) REFERENCES RentalGroup(Code) -- 1:N rleationship between rentalgroup and renter 
+);
+
+-- Owner entity
+CREATE TABLE Owner(
+    PersonId INT NOT NULL,
+    PRIMARY KEY (PersonId), -- method one: primary key of subclass is foreign key referencing the superclass entity
+    FOREIGN KEY (PersonId) REFERENCES Person(Id)
+);
+
+
+-- M:N relationship between property and owner 
+CREATE TABLE OwnerProperty(
+    OwnerId INT NOT NULL,
+    PropertyId INT NOT NULL,
+    PRIMARY KEY (OwnerId, PropertyId),
+    FOREIGN KEY (OwnerId) REFERENCES Owner(PersonId)on delete cascade,
+    FOREIGN KEY (PropertyId) REFERENCES Property(Id) on delete cascade
+);
+
+-- subclasses (house, apartment, room)
+-- house entity
+CREATE TABLE House(
+    Fence VARCHAR(3), -- value of 3 since the field will be Yes or No
+    Detached VARCHAR(3), -- value of 3 since the field will be Yes or No
+    PropId INT NOT NULL,
+    PRIMARY KEY (PropId), -- method one: primary key of subclass is foreign key referencing the superclass entity
+    FOREIGN KEY (PropId) REFERENCES Property(Id) on delete cascade
+
+);
+
+-- apartment entity
+CREATE TABLE Apartment(
+    Floor VARCHAR(100),
+    Elevator VARCHAR(3), -- value of 3 since the field will be Yes or No
+    PropId INT NOT NULL,
+    PRIMARY KEY (PropId), -- method one: primary key of subclass is foreign key referencing the superclass entity
+    FOREIGN KEY (PropId) REFERENCES Property(Id) on delete cascade
+);
+
+-- room entity
+CREATE TABLE Room(
+    KitchenPriv VARCHAR(3), -- value of 3 since the field will be Yes or No 
+    OtherOccupants VARCHAR(20),
+    PropId INT NOT NULL,
+    PRIMARY KEY (PropId), -- method one: primary key of subclass is foreign key referencing the superclass entity
+    FOREIGN KEY (PropId) REFERENCES Property(Id) on delete cascade
+);
+
+
+-- Multivalued attributes
+-- Table for furnishings, a multivalued attribute in the room entity
+CREATE TABLE Furnishings(
+    RoomId INT NOT NULL, 
+    Furnishings VARCHAR(50),
+    PRIMARY KEY (RoomId, Furnishings),  -- primary key of subclass is foreign key referencing the superclass entity
+    FOREIGN KEY (RoomId) REFERENCES Room(PropId) on delete cascade -- TODO - do i reference the prop id becausse room doesnt have one??
+);
+
+
+
+-- Populate your table with some reasonable data with at least 6-8 tuples for each table is expected
+INSERT INTO Person VALUES
+('Anakin', 'Skywalker', '4763610398', 1),
+('Padme', 'Amidala', '3920183610', 2),
+('Obi-Wan', 'KeNobi', '2618485029', 3),
+('Poe', 'Dameron', '4763209398', 4),
+('Ahsoka', 'TaNo', '4117810398', 5),
+('Qui-Gon', 'Jinn', '0927537800', 6),
+('Kylo', 'Ren', '6667836901', 7),
+('General', 'Thrawn', '3782000189', 8),
+('Darth', 'Maul', '2653810378', 9),
+('Boba', 'Fett', '2769462091', 10),
+('Jango', 'Fett', '2369362991', 11),
+('Moff', 'Gideon', '9367763351', 12),
+('Han', 'Solo', '1006350099', 13),
+('R2', 'D2', '2222222220', 14),
+('Mon', 'Mothma', '4566378102', 15),
+('BB', '8', '1117772653', 16),
+('Luke', 'Skywalker', '8003927153', 17),
+('Bo-Katan', 'Kryze', '4447391720', 18);
+
+INSERT INTO Manager VALUES
+(13),
+(14),
+(15),
+(16),
+(17),
+(18);
+
+INSERT INTO Property VALUES
+(70, 1200.00, 'Yes', '12 Force Street', 'Naboo', 'L9T0F4', 'British Colombia', '2A', 'Yes', '2024-01-14', 1, 2, 13,'2022-01-14'),
+(72, 1250.00, 'Yes', '13 Force Street', 'Naboo', 'L9T0F6', 'British Colombia', '2B', 'Yes', '2024-02-14', 1, 2, 13,'2022-02-14'),
+(73, 1230.00, 'Yes', '19 Force Street', 'Naboo', 'L9T0F7', 'British Colombia', '1', 'Yes', '2024-01-07', 1, 2, 13,'2021-07-20'),
+(30, 1350.00, 'No', '23 Mech Street', 'Tatooine', 'L9T0T7', 'Nunavut', '1B', 'Yes', '2024-01-14', 1, 2, 14,'2022-01-14'),
+(21, 2000.00, 'No', '24 Jedi Street', 'Coruscant', 'K7T0R4', 'Ontario', '10', 'No', '2023-01-14', 1, 2, 15,'2021-04-24'),
+(5, 4000.00, 'Yes', '1 Saber Avenue', 'Coruscant', 'M0K0A5', 'Manitoba', '7C', 'Yes', '2024-02-14', 2, 4, 16,'2022-11-09'),
+(6, 5000.00, 'Yes', '28 Saber Avenue', 'Coruscant', 'M0K0A7', 'Manitoba', '8A', 'Yes', '2024-02-14', 2, 4, 16,'2022-11-09'),
+(7, 2300.00, 'Yes', '3 Saber Avenue', 'Coruscant', 'M0K0B3', 'Manitoba', '1B', 'Yes', '2024-02-14', 2, 4, 16,'2022-11-09'),
+(8, 2500.00, 'Yes', '7 Saber Avenue', 'Coruscant', 'M0K0B9', 'Manitoba', '2', 'Yes', '2024-02-14', 2, 4, 16,'2022-11-09'),
+(9, 3775.00, 'Yes', '12 Saber Avenue', 'Coruscant', 'M0T0A4', 'Manitoba', '17', 'Yes', '2024-02-14', 2, 4, 16,'2022-11-09'),
+(10, 1000.00, 'Yes', '13 Echo Street', 'Naboo', 'P9L0S4', 'Alberta', '1A', 'Yes', '2023-05-24', 1, 1, 17,'2022-12-27'),
+(17, 1010.00, 'No', '20 Force Avenue', 'Tatooine', 'L9T0F3', 'Alberta', '1A', 'No', '2023-03-20', 1, 1, 18,'2022-09-01'),
+(40, 525.00, 'No', '18 Saber Avenue', 'Coruscant', 'P7G0G7', 'Manitoba', '4', 'No', '2024-01-01', 1, 1, 16,'2022-09-01'),
+(41, 300.00, 'Yes', '1 Force Avenue', 'Naboo', 'F5R7H8', 'British Colombia', '2A', 'No', '2023-03-20', 1, 1, 17,'2022-09-01'),
+(42, 890.00, 'Yes', '19 Force Avenue', 'Naboo', 'S4A7B9', 'British Colombia', '4B', 'Yes', '2023-03-20', 1, 1, 18,'2021-09-01'),
+(43, 800.00, 'No', '80 Jedi Street', 'Tatooine', 'A9T0B8', 'Alberta', '1A', 'Yes', '2024-01-03', 1, 1, 18,'2022-09-01'),
+(44, 975.00, 'Yes', '120 Force Avenue', 'Naboo', 'L8T0F2', 'British Colombia', '1D', 'No', '2023-12-20', 1, 1, 14,'2020-12-01'),
+(45, 900.00, 'No', '12 Mech Street', 'Tatooine', 'N0K3R8', 'Alberta', '9A', 'Yes', '2023-09-23', 1, 1, 17,'2000-08-01');
+
+
+
+INSERT INTO RentalGroup VALUES
+('Yes',1100.00,1,'Yes','apartment',1,04,17,1010.00,'2024-01-15','2025-01-14'),
+('No',3500.00,2,'Yes','house',4,03,5,1010.00,'2024-01-15','2025-01-14'),
+('Yes',1100.00,1,'No','apartment',2,21,70,1010.00,'2024-01-15','2025-01-14'),
+('No',1100.00,1,'Yes','apartment',2,17,30,1010.00,'2024-01-15','2025-01-14'),
+('No',500.00,1,'No','room',1,15,10,1010.00,null,null),
+('Yes',1100.00,1,'No','apartment',1,22,17,1010.00,null,null);
+
+INSERT INTO Renter VALUES
+(01, '1990','Commerce', 1, 04),
+(37, '1987','Political Science', 2, 04),
+(25, '1960','Enviornmental Science', 3, 03),
+(47, '2008','Aerospace Engineering', 4, 03),
+(16, '2019','Computer Science', 5, 17),
+(16, '1950','Philosophy', 6, 21);
+
+INSERT INTO Owner VALUES
+(7),
+(8),
+(9),
+(10),
+(11),
+(12);
+
+INSERT INTO OwnerProperty VALUES
+(7,70),
+(8,30),
+(9,21),
+(10,5),
+(11,10),
+(12,17);
+
+INSERT INTO House VALUES
+('Yes','Yes',5),
+('No','Yes',6),
+('No','No',7),
+('Yes','Yes',8),
+('No','Yes',9),
+('Yes','Yes',10);
+
+
+INSERT INTO Apartment VALUES
+('2','No',70),
+('2','No',30),
+('4','Yes',21),
+('20','Yes',17),
+('3','No',72),
+('4','Yes',73);
+
+
+INSERT INTO Room VALUES
+('Yes','Yes',40),
+('No','Yes',41),
+('Yes','No',42),
+('Yes','Yes',43),
+('No','No',44),
+('No','Yes',45);
+
+
+INSERT INTO Furnishings VALUES
+(40,'Bed'),
+(41,'Wardrobe'),
+(42,'Coffee Table'),
+(43,'TV Stand'),
+(44, 'Bed'),
+(45,'Desk');

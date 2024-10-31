@@ -1,0 +1,51 @@
+HTML,
+body {
+    margin: 0px;
+    padding: 0px;
+    border: 0px;
+}
+
+h1, h2,
+p {
+    margin: 0;
+}
+
+h2 {
+    color: rgb(181, 181, 181);
+    font-weight: 400;
+    font-size: large;
+}
+
+body {
+    font-family: "Wix Madefor Text", sans-serif;
+}
+
+.pref-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 70vh;
+    margin-left: 20px;
+}
+
+.table-title th {
+    text-align: left;
+}
+
+input {
+    display: block;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 16px;
+    box-sizing: border-box; /* Include padding and border in the width calculation */
+}
+
+
+.submit-button {
+    background-color: #333;
+    color: #fff;
+    padding: 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
