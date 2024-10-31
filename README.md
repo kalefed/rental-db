@@ -2,9 +2,6 @@
 <h1 align="center">Rental Database Application</h1>
 <p align="center"><strong>CISC332 (Database Management Systems) Project</strong>
 <br/>
-<h2>About</h2>
-Context and progress go here
-
 <h2>Goal and requirements</h2>
 
 Create a fully functioning web-based interface for a rental database leveraging HTML, PHP and SQL.
